@@ -1,6 +1,6 @@
 # Low Light Image Enhancement
 
-This repository contains a project for enhancing low-light images using the PRIDNet model. The model has achieved a Peak Signal-to-Noise Ratio (PSNR) of 21.3, demonstrating its effectiveness in improving the quality of low-light images.
+This repository contains a project for enhancing low-light images using the PRIDNet and MWCNN model. The model has achieved a Peak Signal-to-Noise Ratio (PSNR) of 21.3, demonstrating its effectiveness in improving the quality of low-light images.
 
 ## Model
 PRIDNet is a state-of-the-art deep learning model designed for low-light image enhancement. The model architecture effectively denoises and enhances images by progressively refining them through multiple stages.
