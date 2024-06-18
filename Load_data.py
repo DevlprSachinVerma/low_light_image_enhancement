@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from PIL import Image\
+from PIL import Image
 import tensorflow as tf
 
 def load_data(image_path):
