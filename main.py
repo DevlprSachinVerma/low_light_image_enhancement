@@ -1,73 +1,74 @@
 import os
-import random
 import numpy as np
-from glob import glob
-from PIL import Image, ImageOps
-import matplotlib.pyplot as plt
-
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-
-
-import os
-import cv2
-import numpy as np
-from PIL import Image
-from sklearn.model_selection import train_test_split
-
-
-
-import tensorflow as tf
-from tensorflow.keras import models, layers
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, Conv2DTranspose,\
-                                    GlobalAveragePooling2D, AveragePooling2D, MaxPool2D, UpSampling2D,\
-                                    BatchNormalization, Activation, Flatten, Dense, Input,\
-                                    Add, Multiply, Concatenate, concatenate, Softmax
-from tensorflow.keras import initializers, regularizers
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.activations import softmax
-
-tf.keras.backend.set_image_data_format('channels_last')
-
-
-
-from structure import create_model
+from keras.models import load_model
+from keras.preprocessing import image
+from skimage.io import imsave
+import requests
 from dataprocess import preprocess
-
-
-model=create_model()
-
-
 import tensorflow as tf
-import gdown
-import numpy as np
-import cv2
-import os
+from PIL import Image
 
-def download_weights_from_drive(drive_link, output_path):
-    # Extract file ID from Google Drive link
+def download_model_from_drive(drive_link, destination):
+    """Download a file from Google Drive using the link."""
     file_id = drive_link.split('/')[-2]
-    url = f'https://drive.google.com/uc?export=download&id={file_id}'
-    gdown.download(url, output_path, quiet=False)
+    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    response = requests.get(download_url)
+    with open(destination, 'wb') as f:
+        f.write(response.content)
+    print(f"Downloaded model from Google Drive: {destination}")
 
-# Load the pre-defined model (assume the model is already defined as 'model')
-# Assume create_model() is defined elsewhere
+def load_images(image_dir):
+    """Load images from the given directory."""
+    image_paths = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith('.jpg') or f.endswith('.png')]
+    return image_paths
 
-# Google Drive link to the weights file
-drive_link = 'https://drive.google.com/file/d/15Shh4AF1g2DD_c0I3vBn2QjRGhq8WNLh/view?usp=sharing'
+def save_images(images, filenames, output_dir):
+    """Save images to the given directory."""
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    for img, filename in zip(images, filenames):
+        save_path = os.path.join(output_dir, filename)
+        imsave(save_path, img)
 
-# Define the output path for the weights file
-output_directory = './weights'
-os.makedirs(output_directory, exist_ok=True)
-weights_path = os.path.join(output_directory, 'model_weights.h5')
+def main():
+    # Define paths
+    test_input_dir = './test/low/'
+    test_output_dir = './test/predicted/'
+    model_path = 'model.h5'  # Path to save the downloaded model
 
-# Download the weights file
-download_weights_from_drive(drive_link, weights_path)
+    # Google Drive link for your model
+    with open('weights_download_link.txt', 'r') as f:
+        drive_link = f.read().strip()
 
-# Load the weights into the model
-model.load_weights(weights_path)
+    # Download the model
+    download_model_from_drive(drive_link, model_path)
+
+    # Load the trained model
+    model = load_model(model_path)
+    print("Model loaded successfully.")
+
+    # Load test images
+    test_image_paths = load_images(test_input_dir)
+    print(f"Found {len(test_image_paths)} test images.")
+
+    # Process test images
+    test_images = preprocess(test_image_paths)
+    test_images = np.array(test_images)
+    print("Test images processed.")
+
+    # Predict denoised images
+    predicted_images = model.predict(test_images)
+    print("Prediction completed.")
+
+    # De-normalize the images if necessary (converting back to original scale)
+    predicted_images = (predicted_images * 255).astype('uint8')
+
+    # Save the predicted images
+    save_images(predicted_images, [os.path.basename(p) for p in test_image_paths], test_output_dir)
+    print(f"Predicted images saved to {test_output_dir}")
+
+if __name__ == "__main__":
+    main()
 
 
 
