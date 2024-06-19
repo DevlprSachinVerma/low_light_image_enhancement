@@ -23,7 +23,7 @@ from tensorflow.keras import initializers, regularizers
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.activations import softmax
 tf.keras.backend.set_image_data_format('channels_last')
-from models.PRIDnet import create_model
+from models.PRIDnet_MWCNN import create_model
 from Load_data import preprocess
 
 
