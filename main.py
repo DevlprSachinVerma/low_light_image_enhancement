@@ -4,20 +4,14 @@ import numpy as np
 from glob import glob
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
-
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-
-
 import os
 import cv2
 import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
-
-
-
 import tensorflow as tf
 from tensorflow.keras import models, layers
 from tensorflow.keras.models import Model
@@ -28,17 +22,15 @@ from tensorflow.keras.layers import Conv2D, Conv2DTranspose,\
 from tensorflow.keras import initializers, regularizers
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.activations import softmax
-
 tf.keras.backend.set_image_data_format('channels_last')
-
-
-
-from structure import create_model
-from dataprocess import preprocess
+from models.PRIDnet import create_model
+from Load_data import preprocess
 
 
 model=create_model()
 
+low_images='./test/low/'
+output_folder = "./test/predicted/"
 
 import tensorflow as tf
 import gdown
@@ -71,7 +63,7 @@ model.load_weights(weights_path)
 
 
 
-low_images='./test/low/'
+
 
 
 low_list = [os.path.join(low_images, file) for file in os.listdir(low_images)]
@@ -87,7 +79,7 @@ low_images_data = low_images_data.reshape(-1, 256, 256, 3)
 predicted_images = model.predict(low_images_data)
 
 
-output_folder = "./test/predicted/"
+
 os.makedirs(output_folder, exist_ok=True)
 
 for i, predicted_image in enumerate(predicted_images):
